@@ -17,7 +17,9 @@
       <tr>
         <td><%= snippet.language %></td>
         <td><%= snippet.plain_code %></td>
-        <td><%= snippet.highlighted_code %></td>
+        <% if @snippet.highlighted_code.present? %>
+          <td><%= snippet.highlighted_code %></td>
+        <% end %>
         <td><%= link_to 'Show', snippet %></td>
         <td><%= link_to 'Edit', edit_snippet_path(snippet) %></td>
         <td><%= link_to 'Destroy', snippet, method: :delete, data: { confirm: 'Are you sure?' } %></td>
