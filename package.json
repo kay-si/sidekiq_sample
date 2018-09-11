@@ -1,0 +1,5 @@
+{
+  "name": "sidekiq_sample",
+  "private": true,
+  "dependencies": {}
+}
