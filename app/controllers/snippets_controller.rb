@@ -28,13 +28,11 @@ class SnippetsController < ApplicationController
     @snippet = Snippet.new(snippet_params)
   
     respond_to do |format|
-      if @snippet.save
-        uri = URI.parse("https://pygments.simplabs.com/")
-        request = Net::HTTP.post_form(uri, lang: @snippet.language, code: @snippet.plain_code)
-        @snippet.update_attribute(:highlighted_code, request.body)
-        format.html { redirect_to @snippet, notice: 'Snippet was successfully created.' }
-        format.json { render :show, status: :created, location: @snippet }
-      else
+  　　 if @snippet.save
+  　　 　　PygmentsWorker.perform_async(@snippet.id)
+  　　 　　format.html { redirect_to @snippet, notice: 'Snippet was successfully created.' }
+  　　 　　format.json { render :show, status: :created, location: @snippet }
+  　　 else
         format.html { render :new }
         format.json { render json: @snippet.errors, status: :unprocessable_entity }
       end
