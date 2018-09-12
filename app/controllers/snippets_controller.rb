@@ -1,3 +1,6 @@
+require 'net/https'
+require './app/workers/pygment_worker.rb'
+
 class SnippetsController < ApplicationController
   before_action :set_snippet, only: [:show, :edit, :update, :destroy]
 
@@ -21,18 +24,35 @@ class SnippetsController < ApplicationController
   def edit
   end
 
-  # POST /snippets
-  # POST /snippets.json
+ # POST /snippets
+ # POST /snippets.json
+ # 修正後のcreateメソッド
+ #def create
+ #  @snippet = Snippet.new(snippet_params)
+ #  respond_to do |format|
+ #    if @snippet.save
+ #      PygmentWorker.perform_async(@snippet.id)
+ #      format.html { redirect_to @snippet, notice: 'Snippet was successfully created.' }
+ #      format.json { render :show, status: :created, location: @snippet }
+ #    else
+ #      format.html { render :new }
+ #      format.json { render json: @snippet.errors, status: :unprocessable_entity }
+ #    end
+ #  end
+ #end
+
+  # workerで動かす前のcreateメソッド
   # 修正後のcreateメソッド
   def create
-    @snippet = Snippet.new(snippet_params)
-  
+    @snippet = Snippet.new(snippet_params)  
     respond_to do |format|
-  　　 if @snippet.save
-  　　 　　PygmentsWorker.perform_async(@snippet.id)
-  　　 　　format.html { redirect_to @snippet, notice: 'Snippet was successfully created.' }
-  　　 　　format.json { render :show, status: :created, location: @snippet }
-  　　 else
+      if @snippet.save
+        uri = URI.parse("https://pygments.simplabs.com/")
+        request = Net::HTTP.post_form(uri, lang: @snippet.language, code: @snippet.plain_code)
+        @snippet.update_attribute(:highlighted_code, request.body)
+        format.html { redirect_to @snippet, notice: 'Snippet was successfully created.' }
+        format.json { render :show, status: :created, location: @snippet }
+      else
         format.html { render :new }
         format.json { render json: @snippet.errors, status: :unprocessable_entity }
       end

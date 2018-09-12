@@ -17,7 +17,7 @@
       <tr>
         <td><%= snippet.language %></td>
         <td><%= snippet.plain_code %></td>
-        <% if @snippet.highlighted_code.present? %>
+        <% if snippet.highlighted_code.present? %>
           <td><%= snippet.highlighted_code %></td>
         <% end %>
         <td><%= link_to 'Show', snippet %></td>
